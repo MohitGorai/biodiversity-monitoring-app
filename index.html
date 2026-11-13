@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForestWatch AI - Forest Biodiversity</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:sans-serif;background:#07120c;color:#eafff2}
+.nav{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;padding:18px 20px}
+.logo{font-weight:800;font-size:22px}.logo span{color:#3ddc84}
+.btn{background:#3ddc84;color:#06281a;padding:12px 20px;border-radius:999px;font-weight:700;border:0;cursor:pointer}
+.btn2{border:1px solid #2a4a38;padding:12px 20px;border-radius:999px;background:#12281c}
+.hero{max-width:1200px;margin:0 auto;padding:40px 20px;display:grid;grid-template-columns:1.2fr .8fr;gap:30px}
+.hero h1{font-size:52px;line-height:.95;margin:18px 0}.hero h1 em{color:#3ddc84;font-style:normal}
+.card{background:#101f16;border:1px solid #223a2c;border-radius:20px;padding:20px}
+.grid{max-width:1200px;margin:0 auto;padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+#map{height:380px;border-radius:18px}
+select{width:100%;padding:13px;border-radius:12px;border:1px solid #2a4a38;background:#0a1a11;color:#fff;margin:8px 0}
+.section{max-width:1200px;margin:0 auto;padding:30px 20px}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.hero h1{font-size:38px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="nav"><div class="logo">🌳 Forest<span>Watch</span> AI</div><a href="#demo" class="btn">Live Demo →</a></div>
+<div class="hero">
+<div>
+<span style="background:#163824;padding:7px 12px;border-radius:999px;font-size:13px">🛰️ Optical + SAR • AI / ML • Multimodal</span>
+<h1>We don't claim to <em>see through trees.</em><br>We find where we <em>can't see.</em></h1>
+<p style="color:#b9d6c5;line-height:1.6">ForestWatch AI combines Optical + SAR satellite data over time. It detects vegetation change and flags <b>uncertainty / information-gap zones</b> for ground verification.</p>
+<div style="display:flex;gap:12px"><a href="#demo" class="btn">Try Live Demo</a><a href="#how" class="btn2">How it Works</a></div>
+</div>
+<div class="card">
+<h3>⚡ Quick Analysis</h3>
+<select id="region"><option>Western Ghats, India</option><option>Amazon, Brazil</option><option>Congo Basin</option><option>Sundarbans, India</option></select>
+<button class="btn" style="width:100%;margin-top:10px" onclick="runAI()">🔍 Run AI Analysis</button>
+<div id="result" style="margin-top:16px"></div>
+</div>
+</div>
+<div class="grid">
+<div class="card"><b style="font-size:32px">92.4%</b><p>Canopy Coverage</p></div>
+<div class="card"><b style="font-size:32px" id="c2">18.7%</b><p>Uncertainty / Hidden Zones</p></div>
+<div class="card"><b style="font-size:32px" id="c3">12</b><p>Priority Areas for Ground Check</p></div>
+</div>
+<div class="section" id="how"><h2>How It Works</h2><p style="margin-top:12px;line-height:1.8">🛰️ Satellite Images → 👁️ Optical + 📡 SAR → 🤖 AI/ML Analysis → 🌿 Change + Uncertainty Detection → 📍 Ground Verification</p>
+<p style="color:#b9d6c5;margin-top:12px;line-height:1.6"><b style="color:#fff">Problem:</b> Canopy hides ground, clouds + terrain create gaps.<br><b style="color:#fff">Solution:</b> Optical for NDVI health, SAR works in clouds/night. AI compares time-series & flags where data is NOT enough.</p></div>
+<div class="section" id="demo"><h2>🗺️ Live Map - Priority Areas</h2><p style="color:#9dbbae;margin:8px 0">Red = High Uncertainty - Needs Ground Check</p><div id="map"></div><div class="card" style="margin-top:16px"><h3>📊 Report</h3><div id="report">Click Run AI Analysis...</div></div></div>
+<footer style="text-align:center;padding:30px;color:#7fa08d">ForestWatch AI • Demo uses simulated data. Connect real Sentinel-1 / Sentinel-2 in backend.</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var map=L.map('map').setView([20.59,78.96],4);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+[[21.1,77.5,"Western Ghats - High Uncertainty",0.82],[15.9,80.8,"Sundarbans - Medium",0.45],[-3.4,-62.9,"Amazon - High",0.78]].forEach(p=>{
+L.circleMarker([p[0],p[1]],{radius:14,color:p[3]>0.6?'red':'green',fillOpacity:.6}).addTo(map).bindPopup(`<b>${p[2]}</b><br>Uncertainty: ${p[3]*100}%`);
+});
+function runAI(){
+var r=document.getElementById('region').value;
+var unc=(Math.random()*25+10).toFixed(1); var change=(Math.random()*12+2).toFixed(1); var prio=Math.floor(Math.random()*15+5);
+document.getElementById('c2').innerText=unc+'%'; document.getElementById('c3').innerText=prio;
+document.getElementById('result').innerHTML=`<b>✅ ${r}</b><br>Change: ${change}% | Uncertainty: ${unc}% | Priority: ${prio}`;
+document.getElementById('report').innerHTML=`<p style="margin-top:10px;line-height:1.7"><b>Region:</b> ${r}<br><b>NDVI:</b> Slight decline (-${change}%)<br><b>Recommendation:</b> Send ground team to ${prio} high-uncertainty zones. Do NOT conclude deforestation without verification.<br><b>Confidence:</b> ${(100-unc).toFixed(1)}%</p>`;
+}
+</script>
+</body></html>
